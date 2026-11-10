@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+
+{% block title %}สินค้าทั้งหมด — PURE & OLIVE คลีนบิวตี้และอุปกรณ์เสริมความงาม{% endblock %}
+
+{% block content %}
+
+<!-- Header Banner -->
+<section style="background: var(--bg-subtle); padding: 40px 0; border-bottom: 1px solid var(--border-olive);">
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+      <div>
+        <span class="section-tag">Catalog & Products</span>
+        <h1 style="font-size: 2.2rem; margin-bottom: 6px; color: var(--olive-dark);">
+          {% if current_category == 'skincare' %}
+            สกินแคร์ & ครีมบำรุงผิว
+          {% elif current_category == 'cosmetics' %}
+            เครื่องสำอางคลีนบิวตี้
+          {% elif current_category == 'tools' %}
+            อุปกรณ์เสริมความงาม & บิวตี้ทูลส์
+          {% else %}
+            ผลิตภัณฑ์ทั้งหมด
+          {% endif %}
+        </h1>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">
+          พบ {{ total_count }} รายการที่ผ่านการคัดสรรเพื่อผิวสวยอย่างเป็นธรรมชาติ
+        </p>
+      </div>
+
+      <!-- Search Bar -->
+      <form action="{{ url_for('products') }}" method="GET" style="display: flex; gap: 8px;">
+        {% if current_category %}<input type="hidden" name="category" value="{{ current_category }}">{% endif %}
+        <input type="text" name="q" value="{{ search_query }}" placeholder="ค้นหาสินค้า หรือส่วนผสม..."
+               style="padding: 10px 18px; border-radius: var(--radius-pill); border: 1px solid var(--border-light); font-family: inherit; font-size: 0.9rem; width: 260px; outline: none; background: #FFF;">
+        <button type="submit" class="btn btn-primary" style="padding: 10px 20px; font-size: 0.88rem;">
+          ค้นหา
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- Main Products Section -->
+<section style="padding: 40px 0 80px;">
+  <div class="container">
+    
+    <!-- Filter Pills / Categories Tabs -->
+    <div style="display: flex; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <a href="{{ url_for('products') }}" 
+           class="btn {% if not current_category %}btn-primary{% else %}btn-secondary{% endif %}" 
+           style="padding: 8px 18px; font-size: 0.88rem;">
+          ทั้งหมด
+        </a>
+        <a href="{{ url_for('products', category='skincare') }}" 
+           class="btn {% if current_category == 'skincare' %}btn-primary{% else %}btn-secondary{% endif %}" 
+           style="padding: 8px 18px; font-size: 0.88rem;">
+          🧴 สกินแคร์ & ครีม
+        </a>
+        <a href="{{ url_for('products', category='cosmetics') }}" 
+           class="btn {% if current_category == 'cosmetics' %}btn-primary{% else %}btn-secondary{% endif %}" 
+           style="padding: 8px 18px; font-size: 0.88rem;">
+          💄 เครื่องสำอาง
+        </a>
+        <a href="{{ url_for('products', category='tools') }}" 
+           class="btn {% if current_category == 'tools' %}btn-primary{% else %}btn-secondary{% endif %}" 
+           style="padding: 8px 18px; font-size: 0.88rem;">
+          🪄 อุปกรณ์เสริมความงาม
+        </a>
+      </div>
+
+      <!-- Sorting Select -->
+      <form id="sort-form" action="{{ url_for('products') }}" method="GET" style="display: flex; align-items: center; gap: 8px;">
+        {% if current_category %}<input type="hidden" name="category" value="{{ current_category }}">{% endif %}
+        {% if current_concern %}<input type="hidden" name="concern" value="{{ current_concern }}">{% endif %}
+        {% if search_query %}<input type="hidden" name="q" value="{{ search_query }}">{% endif %}
+        <label for="sort-select" style="font-size: 0.88rem; color: var(--text-muted);">เรียงตาม:</label>
+        <select id="sort-select" name="sort" onchange="document.getElementById('sort-form').submit()" 
+                style="padding: 8px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); font-family: inherit; font-size: 0.88rem; background: #FFF; outline: none;">
+          <option value="popular" {% if current_sort == 'popular' %}selected{% endif %}>ความนิยม / สินค้าขายดี</option>
+          <option value="rating" {% if current_sort == 'rating' %}selected{% endif %}>คะแนนรีวิวสูงสุด</option>
+          <option value="price_low" {% if current_sort == 'price_low' %}selected{% endif %}>ราคา: ต่ำไปสูง</option>
+          <option value="price_high" {% if current_sort == 'price_high' %}selected{% endif %}>ราคา: สูงไปต่ำ</option>
+          <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>สินค้ามาใหม่</option>
+        </select>
+      </form>
+    </div>
+
+    <!-- Quick Concern Tags Filter -->
+    <div style="background: var(--bg-card); padding: 16px 20px; border-radius: var(--radius-md); border: 1px solid var(--border-light); margin-bottom: 30px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+      <span style="font-size: 0.85rem; font-weight: 600; color: var(--olive-dark);">กรองตามปัญหาผิว:</span>
+      <a href="{{ url_for('products', category=current_category, concern='') }}" 
+         style="font-size: 0.82rem; padding: 4px 12px; border-radius: var(--radius-pill); background: {% if not current_concern %}var(--olive-tint){% else %}transparent{% endif %}; border: 1px solid var(--border-olive); color: var(--olive-dark);">
+        ทั้งหมด
+      </a>
+      <a href="{{ url_for('products', category=current_category, concern='acne') }}" 
+         style="font-size: 0.82rem; padding: 4px 12px; border-radius: var(--radius-pill); background: {% if current_concern == 'acne' %}var(--olive-tint){% else %}transparent{% endif %}; border: 1px solid var(--border-olive); color: var(--olive-dark);">
+        สิวและคุมมัน
+      </a>
+      <a href="{{ url_for('products', category=current_category, concern='hydration') }}" 
+         style="font-size: 0.82rem; padding: 4px 12px; border-radius: var(--radius-pill); background: {% if current_concern == 'hydration' %}var(--olive-tint){% else %}transparent{% endif %}; border: 1px solid var(--border-olive); color: var(--olive-dark);">
+        ผิวแห้งขาดน้ำ
+      </a>
+      <a href="{{ url_for('products', category=current_category, concern='barrier') }}" 
+         style="font-size: 0.82rem; padding: 4px 12px; border-radius: var(--radius-pill); background: {% if current_concern == 'barrier' %}var(--olive-tint){% else %}transparent{% endif %}; border: 1px solid var(--border-olive); color: var(--olive-dark);">
+        ฟื้นฟูเกราะป้องกันผิว
+      </a>
+      <a href="{{ url_for('products', category=current_category, concern='aging') }}" 
+         style="font-size: 0.82rem; padding: 4px 12px; border-radius: var(--radius-pill); background: {% if current_concern == 'aging' %}var(--olive-tint){% else %}transparent{% endif %}; border: 1px solid var(--border-olive); color: var(--olive-dark);">
+        ชะลอวัย & ยกกระชับ
+      </a>
+      <a href="{{ url_for('products', category=current_category, concern='brightening') }}" 
+         style="font-size: 0.82rem; padding: 4px 12px; border-radius: var(--radius-pill); background: {% if current_concern == 'brightening' %}var(--olive-tint){% else %}transparent{% endif %}; border: 1px solid var(--border-olive); color: var(--olive-dark);">
+        ผิวกระจ่างใส
+      </a>
+    </div>
+
+    <!-- Product Grid -->
+    {% if products %}
+      <div class="product-grid">
+        {% for product in products %}
+          <div class="product-card">
+            <div class="product-img-wrap">
+              <a href="{{ url_for('product_detail', product_id=product.id) }}">
+                <img src="{{ product.image_url }}" alt="{{ product.name }}">
+              </a>
+              <div class="product-badge-group">
+                {% if product.is_bestseller %}
+                  <span class="badge-bestseller">Best Seller</span>
+                {% endif %}
+                <span class="badge-clean">Clean Formula</span>
+              </div>
+            </div>
+            
+            <div class="product-body">
+              <div class="product-category-sub">{{ product.subcategory }} • {{ product.volume }}</div>
+              <a href="{{ url_for('product_detail', product_id=product.id) }}">
+                <h3 class="product-name">{{ product.name }}</h3>
+              </a>
+              <div class="product-name-en">{{ product.name_en }}</div>
+              
+              <div class="product-meta">
+                <div class="rating-stars">
+                  ★ <span>{{ product.rating }}</span>
+                  <span class="rating-text">({{ product.reviews_count }})</span>
+                </div>
+                <span class="product-volume">สต็อก {{ product.stock }} ชิ้น</span>
+              </div>
+
+              <div class="product-price-row">
+                <div>
+                  <span class="price-current">฿{{ "{:,.2f}".format(product.price) }}</span>
+                  {% if product.original_price and product.original_price > product.price %}
+                    <span class="price-original">฿{{ "{:,.2f}".format(product.original_price) }}</span>
+                  {% endif %}
+                </div>
+                <button type="button" class="btn-quick-add" title="เพิ่มลงตะกร้า"
+                        onclick="addToCart({id: {{ product.id }}, name: '{{ product.name|replace("'", "\\'") }}', price: {{ product.price }}, image_url: '{{ product.image_url }}', volume: '{{ product.volume }}'})">
+                  🛒
+                </button>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div style="text-align: center; padding: 70px 20px; background: var(--bg-card); border-radius: var(--radius-md); border: 1px solid var(--border-light);">
+        <div style="font-size: 3rem; margin-bottom: 16px;">🔍</div>
+        <h3 style="font-size: 1.4rem; color: var(--olive-dark); margin-bottom: 8px;">ไม่พบสินค้าที่ตรงกับเงื่อนไข</h3>
+        <p style="color: var(--text-secondary); margin-bottom: 24px;">ลองเปลี่ยนคำค้นหา หรือล้างตัวกรองเพื่อดูสินค้าทั้งหมด</p>
+        <a href="{{ url_for('products') }}" class="btn btn-primary">ดูสินค้าทั้งหมด</a>
+      </div>
+    {% endif %}
+
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,283 @@
+{% extends 'base.html' %}
+
+{% block title %}หน้าแรก — PURE & OLIVE ร้านสกินแคร์และเครื่องสำอางคลีนบิวตี้{% endblock %}
+
+{% block content %}
+
+<!-- Hero Banner Section -->
+<section class="hero-section">
+  <div class="container">
+    <div class="hero-grid">
+      
+      <!-- Hero Copy -->
+      <div>
+        <div class="hero-tag">
+          <span>🌿</span> 100% Clean & Botanical Skincare
+        </div>
+        <h1 class="hero-title">
+          ความงามที่บริสุทธิ์<br>
+          เพื่อผิวสุขภาพดี <span>อย่างยั่งยืน</span>
+        </h1>
+        <p class="hero-desc">
+          สัมผัสพลังแห่งการบำรุงจากสารสกัดมะกอกออร์แกนิกและพฤกษศาสตร์ธรรมชาติ ปราศจากสารระคายเคือง 100% ออกแบบมาเป็นพิเศษสำหรับผิวแพ้ง่ายและทุกสภาพผิว
+        </p>
+        <div class="hero-cta">
+          <a href="{{ url_for('products') }}" class="btn btn-primary" style="padding: 14px 32px;">
+            ช้อปสินค้าทั้งหมด ➔
+          </a>
+          <a href="{{ url_for('routine_quiz') }}" class="btn btn-secondary" style="padding: 14px 28px;">
+            ✨ วิเคราะห์สภาพผิว (Skin Quiz)
+          </a>
+        </div>
+      </div>
+
+      <!-- Hero Visual -->
+      <div class="hero-img-box">
+        <img src="https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=1000&q=80" 
+             alt="PURE & OLIVE Clean Skincare" 
+             class="hero-main-img">
+        <div class="hero-badge-card">
+          <div class="icon-box">🛡️</div>
+          <div>
+            <div style="font-weight: 700; font-size: 0.95rem; color: var(--olive-dark);">Dermatologist Tested</div>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">ผ่านการทดสอบโดยแพทย์ผิวหนัง อ่อนโยนแม้ผิวแพ้ง่าย</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Trust Value Propositions -->
+<section class="trust-bar">
+  <div class="container">
+    <div class="trust-grid">
+      <div class="trust-item">
+        <div class="trust-icon">🌱</div>
+        <div>
+          <div class="trust-title">100% Clean & Vegan</div>
+          <div class="trust-subtitle">ไร้พาราเบน แอลกอฮอล์ และน้ำหอม</div>
+        </div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-icon">🐰</div>
+        <div>
+          <div class="trust-title">Cruelty-Free</div>
+          <div class="trust-subtitle">ไม่มีการทดลองกับสัตว์ทุกขั้นตอน</div>
+        </div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-icon">🚚</div>
+        <div>
+          <div class="trust-title">จัดส่งฟรีทั่วไทย</div>
+          <div class="trust-subtitle">เมื่อสั่งซื้อสินค้าครบ 990 บาท</div>
+        </div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-icon">♻️</div>
+        <div>
+          <div class="trust-title">Eco-Friendly Pack</div>
+          <div class="trust-subtitle">บรรจุภัณฑ์รีไซเคิล รักษ์สิ่งแวดล้อม</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Categories Spotlight -->
+<section style="padding: 80px 0 30px;">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Shop by Category</span>
+      <h2 class="section-title">ค้นพบหมวดหมู่ที่ใช่สำหรับคุณ</h2>
+      <p class="section-subtitle">เลือกสรรผลิตภัณฑ์ดูแลผิวและเครื่องสำอางที่ตอบโจทย์ความต้องการของคุณอย่างตรงจุด</p>
+    </div>
+
+    <div class="category-grid">
+      <!-- Skincare -->
+      <a href="{{ url_for('products', category='skincare') }}" class="category-card">
+        <img src="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80" alt="Skincare & Creams">
+        <div class="category-overlay">
+          <h3>สกินแคร์ & ครีมบำรุง</h3>
+          <p>เซรั่ม, โทนเนอร์, ครีมเสริมเกราะป้องกันผิว และกันแดด ➔</p>
+        </div>
+      </a>
+
+      <!-- Cosmetics -->
+      <a href="{{ url_for('products', category='cosmetics') }}" class="category-card">
+        <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80" alt="Clean Cosmetics">
+        <div class="category-overlay">
+          <h3>เครื่องสำอางคลีนบิวตี้</h3>
+          <p>คุชชั่นงานผิว, ลิปบัตเตอร์สีธรรมชาติ และแป้งข้าวคุมมัน ➔</p>
+        </div>
+      </a>
+
+      <!-- Tools -->
+      <a href="{{ url_for('products', category='tools') }}" class="category-card">
+        <img src="https://images.unsplash.com/photo-1617897903246-719242758050?auto=format&fit=crop&w=800&q=80" alt="Beauty Tools">
+        <div class="category-overlay">
+          <h3>อุปกรณ์เสริมความงาม</h3>
+          <p>กัวซาหินหยกแท้, แปรงแต่งหน้าขนนุ่ม และเครื่องนวดหน้า ➔</p>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Bestsellers Section -->
+<section style="padding: 40px 0 80px;">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Best Sellers</span>
+      <h2 class="section-title">สินค้าขายดียอดนิยม</h2>
+      <p class="section-subtitle">ผลิตภัณฑ์ที่ได้รับความไว้วางใจสูงสุดจากลูกค้า PURE & OLIVE</p>
+    </div>
+
+    <div class="product-grid">
+      {% for product in bestsellers %}
+        <div class="product-card">
+          <div class="product-img-wrap">
+            <a href="{{ url_for('product_detail', product_id=product.id) }}">
+              <img src="{{ product.image_url }}" alt="{{ product.name }}">
+            </a>
+            <div class="product-badge-group">
+              <span class="badge-bestseller">Best Seller</span>
+              <span class="badge-clean">Clean Formula</span>
+            </div>
+          </div>
+          <div class="product-body">
+            <div class="product-category-sub">{{ product.subcategory }} • {{ product.volume }}</div>
+            <a href="{{ url_for('product_detail', product_id=product.id) }}">
+              <h3 class="product-name">{{ product.name }}</h3>
+            </a>
+            <div class="product-name-en">{{ product.name_en }}</div>
+            
+            <div class="product-meta">
+              <div class="rating-stars">
+                ★ <span>{{ product.rating }}</span>
+                <span class="rating-text">({{ product.reviews_count }})</span>
+              </div>
+              <span class="product-volume">สต็อก {{ product.stock }} ชิ้น</span>
+            </div>
+
+            <div class="product-price-row">
+              <div>
+                <span class="price-current">฿{{ "{:,.2f}".format(product.price) }}</span>
+                {% if product.original_price and product.original_price > product.price %}
+                  <span class="price-original">฿{{ "{:,.2f}".format(product.original_price) }}</span>
+                {% endif %}
+              </div>
+              <button type="button" class="btn-quick-add" title="เพิ่มลงตะกร้า"
+                      onclick="addToCart({id: {{ product.id }}, name: '{{ product.name|replace("'", "\\'") }}', price: {{ product.price }}, image_url: '{{ product.image_url }}', volume: '{{ product.volume }}'})">
+                🛒
+              </button>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div style="text-align: center; margin-top: 40px;">
+      <a href="{{ url_for('products') }}" class="btn btn-secondary" style="padding: 12px 36px;">
+        ดูสินค้าทั้งหมดทั้งหมด (17 รายการ) ➔
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Interactive Routine Quiz Callout -->
+<section class="container">
+  <div class="quiz-teaser-section">
+    <div class="quiz-teaser-grid">
+      <div>
+        <span class="section-tag" style="color: var(--olive-main);">Skin Diagnostic</span>
+        <h2 class="quiz-teaser-title">ค้นพบ Routine ที่ออกแบบเฉพาะสำหรับสภาพผิวคุณ</h2>
+        <p class="quiz-teaser-desc">
+          ทำแบบทดสอบวิเคราะห์สภาพผิวใน 1 นาที เพื่อรับสกินแคร์รูทีน เช้า-เย็น พร้อมสูตรผสมที่ตอบโจทย์ผิวคุณ พร้อมรับส่วนลดพิเศษ 15% เมื่อเลือกรับเซตแนะนำครบวงจร
+        </p>
+        <div class="routine-steps-preview">
+          <div class="step-preview-box"><span>1</span> วิเคราะห์สภาพผิว</div>
+          <div class="step-preview-box"><span>2</span> เลือกปัญหาผิวหลัก</div>
+          <div class="step-preview-box"><span>3</span> รับรูทีน เช้า-เย็น ทันที</div>
+        </div>
+        <a href="{{ url_for('routine_quiz') }}" class="btn btn-primary" style="padding: 14px 34px;">
+          เริ่มทำแบบทดสอบผิวเลย ➔
+        </a>
+      </div>
+      <div style="text-align: center;">
+        <img src="https://images.unsplash.com/photo-1608248597359-58d56b060f64?auto=format&fit=crop&w=700&q=80" 
+             alt="Skin Quiz" 
+             style="border-radius: 20px; box-shadow: var(--shadow-md); border: 4px solid #FFF; max-height: 340px; margin: 0 auto; object-fit: cover;">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Clean Ingredients Highlights -->
+<section style="padding: 80px 0; background-color: var(--bg-card); border-top: 1px solid var(--border-light); border-bottom: 1px solid var(--border-light);">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Our Pure Ingredients</span>
+      <h2 class="section-title">สารสกัดธรรมชาติเพื่อผิวแข็งแรง</h2>
+      <p class="section-subtitle">เราคัดสรรสารบำรุงที่ทำงานสอดคล้องกับชีววิทยาของผิว เพื่อผลลัพธ์ที่ยั่งยืนและปลอดภัยสูงสุด</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;">
+      <div style="background: var(--bg-body); padding: 26px; border-radius: var(--radius-md); border: 1px solid var(--border-light); text-align: center;">
+        <div style="font-size: 2.2rem; margin-bottom: 12px;">🫒</div>
+        <h4 style="font-size: 1.1rem; color: var(--olive-dark); margin-bottom: 8px;">Olive Squalane 100%</h4>
+        <p style="font-size: 0.85rem; color: var(--text-secondary);">สควาเลนจากผลมะกอก โครงสร้างคล้ายน้ำมันหล่อเลี้ยงผิวธรรมชาติ ซึมลึก ไม่เหนอะหนะ ไม่อุดตัน</p>
+      </div>
+      <div style="background: var(--bg-body); padding: 26px; border-radius: var(--radius-md); border: 1px solid var(--border-light); text-align: center;">
+        <div style="font-size: 2.2rem; margin-bottom: 12px;">🍀</div>
+        <h4 style="font-size: 1.1rem; color: var(--olive-dark); margin-bottom: 8px;">Centella & Heartleaf</h4>
+        <p style="font-size: 0.85rem; color: var(--text-secondary);">สารสกัดใบบัวบกและฮาร์ทลีฟเข้มข้น ช่วยปลอบประโลมผิวระคายเคือง ลดสิว และลดรอยแดง</p>
+      </div>
+      <div style="background: var(--bg-body); padding: 26px; border-radius: var(--radius-md); border: 1px solid var(--border-light); text-align: center;">
+        <div style="font-size: 2.2rem; margin-bottom: 12px;">🧱</div>
+        <h4 style="font-size: 1.1rem; color: var(--olive-dark); margin-bottom: 8px;">5 Essential Ceramides</h4>
+        <p style="font-size: 0.85rem; color: var(--text-secondary);">เซราไมด์ 5 ชนิด เสริมเกราะป้องกันผิวให้แข็งแรง กักเก็บความชุ่มชื้น ป้องกันมลภาวะภายนอก</p>
+      </div>
+      <div style="background: var(--bg-body); padding: 26px; border-radius: var(--radius-md); border: 1px solid var(--border-light); text-align: center;">
+        <div style="font-size: 2.2rem; margin-bottom: 12px;">🌸</div>
+        <h4 style="font-size: 1.1rem; color: var(--olive-dark); margin-bottom: 8px;">Natural Bakuchiol</h4>
+        <p style="font-size: 0.85rem; color: var(--text-secondary);">สารสกัดจากพืชเมล็ดบาคูชิ ทางเลือกธรรมชาติแทนเรตินอล ช่วยลดเลือนริ้วรอยโดยไม่ทำให้ผิวบาง</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Real User Reviews -->
+<section style="padding: 80px 0;">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-tag">Customer Stories</span>
+      <h2 class="section-title">เสียงตอบรับจากผู้ใช้จริง</h2>
+      <p class="section-subtitle">ความรู้สึกและผลลัพธ์หลังการใช้ผลิตภัณฑ์ PURE & OLIVE</p>
+    </div>
+
+    <div class="review-grid">
+      {% for review in reviews %}
+        <div class="review-card">
+          <div class="reviewer-header">
+            <div class="reviewer-avatar">{{ review.reviewer_name[:1] }}</div>
+            <div>
+              <div class="reviewer-name">{{ review.reviewer_name }}</div>
+              <div class="reviewer-skin-badge">{{ review.skin_type }}</div>
+            </div>
+          </div>
+          <div style="color: var(--accent-gold); font-size: 0.85rem;">
+            {% for _ in range(review.rating) %}★{% endfor %}
+          </div>
+          <p class="review-comment">“{{ review.comment }}”</p>
+          <div style="margin-top: auto; padding-top: 10px; border-top: 1px solid var(--border-light); font-size: 0.78rem; color: var(--text-muted);">
+            รีวิวสินค้า: <span style="color: var(--olive-dark); font-weight: 500;">{{ review.product_name }}</span>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+{% endblock %}

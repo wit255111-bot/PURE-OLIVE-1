@@ -1,0 +1,383 @@
+{% extends 'base.html' %}
+
+{% block title %}ตะกร้าสินค้า & ชำระเงิน — PURE & OLIVE{% endblock %}
+
+{% block content %}
+
+<!-- Header Banner -->
+<section style="background: var(--bg-subtle); padding: 40px 0; border-bottom: 1px solid var(--border-olive);">
+  <div class="container">
+    <span class="section-tag">Checkout & Payment</span>
+    <h1 style="font-size: 2.2rem; color: var(--olive-dark); margin-bottom: 4px;">ตะกร้าสินค้าและการสั่งซื้อ</h1>
+    <p style="color: var(--text-secondary); font-size: 0.95rem;">ตรวจสอบรายการสินค้า กรอกที่อยู่จัดส่ง และเลือกช่องทางชำระเงิน</p>
+  </div>
+</section>
+
+<section style="padding: 50px 0 90px;">
+  <div class="container">
+    
+    <!-- Free Shipping Progress -->
+    <div id="free-shipping-box" style="background: var(--bg-card); padding: 18px 24px; border-radius: var(--radius-md); border: 1px solid var(--border-light); margin-bottom: 30px;">
+      <div style="display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: 600; color: var(--olive-dark); margin-bottom: 8px;">
+        <span id="shipping-progress-text">🚚 ช้อปอีก ฿990.00 เพื่อรับสิทธิ์จัดส่งฟรีทั่วประเทศ!</span>
+        <span id="shipping-badge" style="color: var(--olive-main);">ส่งฟรีเมื่อครบ 990฿</span>
+      </div>
+      <div style="background: var(--bg-warm); height: 8px; border-radius: var(--radius-pill); overflow: hidden;">
+        <div id="shipping-progress-bar" style="background: var(--olive-main); height: 100%; width: 0%; transition: width 0.3s ease;"></div>
+      </div>
+    </div>
+
+    <!-- Empty Cart State -->
+    <div id="empty-cart-view" style="display: none; text-align: center; padding: 70px 20px; background: #FFF; border-radius: var(--radius-lg); border: 1px solid var(--border-light);">
+      <div style="font-size: 3.5rem; margin-bottom: 16px;">🌿</div>
+      <h3 style="font-size: 1.5rem; color: var(--olive-dark); margin-bottom: 8px;">ตะกร้าสินค้าของคุณยังว่างเปล่า</h3>
+      <p style="color: var(--text-secondary); margin-bottom: 24px;">เลือกผลิตภัณฑ์ดูแลผิวและเครื่องสำอางออร์แกนิกที่คุณชื่นชอบได้เลยค่ะ</p>
+      <a href="{{ url_for('products') }}" class="btn btn-primary" style="padding: 12px 32px;">เริ่มช้อปปิ้งสินค้า ➔</a>
+    </div>
+
+    <!-- Active Cart View Grid -->
+    <div id="active-cart-view" style="display: grid; grid-template-columns: 1.25fr 0.85fr; gap: 40px; align-items: start;">
+      
+      <!-- Left: Items & Customer Details -->
+      <div>
+        
+        <!-- Cart Items Table Card -->
+        <div style="background: #FFF; border-radius: var(--radius-md); border: 1px solid var(--border-light); padding: 24px; margin-bottom: 30px; box-shadow: var(--shadow-sm);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light);">
+            <h3 style="font-size: 1.2rem; color: var(--olive-dark);">รายการสินค้า (<span id="cart-item-count">0</span> ชิ้น)</h3>
+            <button type="button" onclick="clearCartConfirm()" style="background:none; border:none; color: #D32F2F; font-size: 0.82rem; cursor:pointer; text-decoration: underline;">
+              ล้างตะกร้าทั้งหมด
+            </button>
+          </div>
+
+          <div id="cart-page-items">
+            <!-- Injected by JavaScript -->
+          </div>
+        </div>
+
+        <!-- Customer & Shipping Information Card -->
+        <div style="background: #FFF; border-radius: var(--radius-md); border: 1px solid var(--border-light); padding: 26px; box-shadow: var(--shadow-sm);">
+          <h3 style="font-size: 1.25rem; color: var(--olive-dark); margin-bottom: 18px; display: flex; align-items: center; gap: 8px;">
+            <span>📍</span> <span>ข้อมูลที่อยู่สำหรับจัดส่งพัสดุ</span>
+          </h3>
+
+          <form id="checkout-form">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+              <div>
+                <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px;">ชื่อ-นามสกุล ผู้รับ *</label>
+                <input type="text" id="cust-name" required placeholder="เช่น คุณวิภาดา สุขใจ"
+                       style="width: 100%; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); font-family: inherit; font-size: 0.9rem;">
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px;">เบอร์โทรศัพท์ติดต่อ *</label>
+                <input type="tel" id="cust-phone" required placeholder="เช่น 081-234-5678"
+                       style="width: 100%; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); font-family: inherit; font-size: 0.9rem;">
+              </div>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+              <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px;">อีเมล (สำหรับรับใบเสร็จ) *</label>
+              <input type="email" id="cust-email" required placeholder="name@example.com"
+                     style="width: 100%; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); font-family: inherit; font-size: 0.9rem;">
+            </div>
+
+            <div style="margin-bottom: 22px;">
+              <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px;">ที่อยู่จัดส่งโดยละเอียด (บ้านเลขที่ หมู่บ้าน ซอย ถนน แขวง เขต จังหวัด รหัสไปรษณีย์) *</label>
+              <textarea id="cust-address" rows="3" required placeholder="ระบุบ้านเลขที่ ซอย ถนน แขวง/ตำบล เขต/อำเภอ จังหวัด และรหัสไปรษณีย์"
+                        style="width: 100%; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); font-family: inherit; font-size: 0.9rem;"></textarea>
+            </div>
+
+            <!-- Payment Method Selection -->
+            <h4 style="font-size: 1.05rem; color: var(--olive-dark); margin-bottom: 12px; font-weight: 600;">เลือกช่องทางการชำระเงิน</h4>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 10px;">
+              
+              <label style="border: 2px solid var(--olive-main); background: var(--olive-tint); padding: 14px; border-radius: var(--radius-sm); cursor: pointer; text-align: center; display: block;" id="pay-opt-promptpay">
+                <input type="radio" name="payment_method" value="promptpay" checked style="margin-bottom: 6px;" onchange="updatePaymentSelect(this.value)">
+                <div style="font-weight: 700; font-size: 0.9rem; color: var(--olive-dark);">PromptPay QR</div>
+                <div style="font-size: 0.72rem; color: var(--text-secondary);">สแกนจ่ายทันที ฟรีค่าธรรมเนียม</div>
+              </label>
+
+              <label style="border: 1px solid var(--border-light); background: #FFF; padding: 14px; border-radius: var(--radius-sm); cursor: pointer; text-align: center; display: block;" id="pay-opt-credit">
+                <input type="radio" name="payment_method" value="credit_card" style="margin-bottom: 6px;" onchange="updatePaymentSelect(this.value)">
+                <div style="font-weight: 700; font-size: 0.9rem; color: var(--olive-dark);">บัตรเครดิต/เดบิต</div>
+                <div style="font-size: 0.72rem; color: var(--text-secondary);">Visa, Mastercard, JCB</div>
+              </label>
+
+              <label style="border: 1px solid var(--border-light); background: #FFF; padding: 14px; border-radius: var(--radius-sm); cursor: pointer; text-align: center; display: block;" id="pay-opt-cod">
+                <input type="radio" name="payment_method" value="cod" style="margin-bottom: 6px;" onchange="updatePaymentSelect(this.value)">
+                <div style="font-weight: 700; font-size: 0.9rem; color: var(--olive-dark);">เก็บเงินปลายทาง (COD)</div>
+                <div style="font-size: 0.72rem; color: var(--text-secondary);">ชำระเงินเมื่อได้รับสินค้า</div>
+              </label>
+
+            </div>
+          </form>
+        </div>
+
+      </div>
+
+      <!-- Right: Summary & Order Confirmation -->
+      <div>
+        
+        <!-- Coupon Code Card -->
+        <div style="background: #FFF; border-radius: var(--radius-md); border: 1px solid var(--border-light); padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow-sm);">
+          <label style="display: block; font-size: 0.88rem; font-weight: 600; color: var(--olive-dark); margin-bottom: 8px;">
+            🏷️ โค้ดส่วนลด (Coupon Code)
+          </label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="coupon-input" placeholder="ใส่โค้ด เช่น CLEAN10" 
+                   style="flex: 1; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); text-transform: uppercase; font-family: inherit; font-size: 0.88rem;">
+            <button type="button" class="btn btn-secondary" onclick="applyCoupon()" style="padding: 10px 18px; font-size: 0.88rem;">
+              ใช้โค้ด
+            </button>
+          </div>
+          <div id="coupon-feedback" style="font-size: 0.78rem; margin-top: 6px;"></div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 8px;">
+            *โค้ดแนะนำ: <b>CLEAN10</b> (ลด 10%), <b>OLIVE50</b> (ลด 50 บาท)
+          </div>
+        </div>
+
+        <!-- Price Summary Box -->
+        <div style="background: #FFF; border-radius: var(--radius-md); border: 1px solid var(--border-light); padding: 26px; box-shadow: var(--shadow-md);">
+          <h3 style="font-size: 1.25rem; color: var(--olive-dark); margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light);">
+            สรุปคำสั่งซื้อ
+          </h3>
+
+          <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.92rem; color: var(--text-secondary);">
+            <span>ยอดรวมสินค้า</span>
+            <span id="summary-subtotal">฿0.00</span>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.92rem; color: #D32F2F;" id="row-discount">
+            <span>ส่วนลดโค้ด</span>
+            <span id="summary-discount">- ฿0.00</span>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; margin-bottom: 16px; font-size: 0.92rem; color: var(--text-secondary);">
+            <span>ค่าจัดส่ง</span>
+            <span id="summary-shipping">฿0.00</span>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; padding-top: 16px; border-top: 2px dashed var(--border-light); margin-bottom: 24px; font-size: 1.35rem; font-weight: 700; color: var(--olive-dark);">
+            <span>ยอดสุทธิ</span>
+            <span id="summary-total" style="font-family: 'Plus Jakarta Sans', sans-serif;">฿0.00</span>
+          </div>
+
+          <button type="button" class="btn btn-primary" onclick="submitOrder()" style="width: 100%; padding: 15px; font-size: 1rem;">
+            🔒 ยืนยันการสั่งซื้อและชำระเงิน ➔
+          </button>
+
+          <div style="margin-top: 16px; text-align: center; font-size: 0.78rem; color: var(--text-muted);">
+            ✓ ชำระเงินปลอดภัยด้วยระบบเข้ารหัส SSL 256-bit<br>
+            ✓ ตรวจสอบสภาพสินค้าและคืนเงินได้ภายใน 7 วัน
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  let appliedCoupon = '';
+  let couponDiscountRate = 0;
+  let couponFixedDiscount = 0;
+
+  function renderCartPage() {
+    const cart = getCart();
+    const activeView = document.getElementById('active-cart-view');
+    const emptyView = document.getElementById('empty-cart-view');
+    const container = document.getElementById('cart-page-items');
+    const countEl = document.getElementById('cart-item-count');
+
+    if (!activeView || !emptyView || !container) return;
+
+    if (cart.length === 0) {
+      activeView.style.display = 'none';
+      emptyView.style.display = 'block';
+      return;
+    }
+
+    activeView.style.display = 'grid';
+    emptyView.style.display = 'none';
+
+    const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+    countEl.textContent = totalCount;
+
+    container.innerHTML = cart.map(item => `
+      <div style="display: flex; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--border-light); align-items: center;">
+        <img src="${item.image_url}" alt="${item.name}" style="width: 75px; height: 75px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+        <div style="flex: 1;">
+          <h4 style="font-size: 0.98rem; font-weight: 600; color: var(--olive-dark); margin-bottom: 2px;">${item.name}</h4>
+          <div style="font-size: 0.8rem; color: var(--text-muted);">${item.volume ? item.volume : ''}</div>
+          <div style="font-size: 0.95rem; font-weight: 700; color: var(--olive-main); margin-top: 4px;">
+            ฿${item.price.toLocaleString('th-TH', { minimumFractionDigits: 2 })}
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button type="button" class="qty-btn" onclick="updateQuantity(${item.id}, -1)">-</button>
+          <span style="font-weight: 600; font-size: 0.95rem; min-width: 24px; text-align: center;">${item.quantity}</span>
+          <button type="button" class="qty-btn" onclick="updateQuantity(${item.id}, 1)">+</button>
+        </div>
+        <div style="min-width: 90px; text-align: right; font-weight: 700; color: var(--olive-dark); font-family: 'Plus Jakarta Sans', sans-serif;">
+          ฿${(item.price * item.quantity).toLocaleString('th-TH', { minimumFractionDigits: 2 })}
+        </div>
+        <button type="button" onclick="removeFromCart(${item.id})" style="border:none; background:none; color: #999; cursor:pointer; font-size: 1.1rem; padding: 4px;">
+          &times;
+        </button>
+      </div>
+    `).join('');
+
+    calculateTotals();
+  }
+
+  function calculateTotals() {
+    const cart = getCart();
+    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+    // Calculate Discount
+    let discount = 0;
+    if (couponDiscountRate > 0) {
+      discount = subtotal * couponDiscountRate;
+    } else if (couponFixedDiscount > 0) {
+      discount = Math.min(subtotal, couponFixedDiscount);
+    }
+
+    // Shipping Fee (Free if >= 990)
+    const afterDiscount = Math.max(0, subtotal - discount);
+    const shipping = afterDiscount >= 990.0 || afterDiscount === 0 ? 0.0 : 50.0;
+    const total = afterDiscount + shipping;
+
+    // Update Progress Bar
+    const progText = document.getElementById('shipping-progress-text');
+    const progBar = document.getElementById('shipping-progress-bar');
+    if (afterDiscount >= 990.0) {
+      progText.textContent = '🎉 ยินดีด้วยค่ะ! คุณได้รับสิทธิ์จัดส่งฟรีทั่วประเทศ';
+      progBar.style.width = '100%';
+    } else {
+      const remaining = 990.0 - afterDiscount;
+      progText.textContent = `🚚 ช้อปอีก ฿${remaining.toFixed(2)} เพื่อรับสิทธิ์จัดส่งฟรีทั่วประเทศ!`;
+      progBar.style.width = `${Math.min(100, (afterDiscount / 990.0) * 100)}%`;
+    }
+
+    // Update Summary Elements
+    document.getElementById('summary-subtotal').textContent = `฿${subtotal.toLocaleString('th-TH', { minimumFractionDigits: 2 })}`;
+    document.getElementById('summary-discount').textContent = `- ฿${discount.toLocaleString('th-TH', { minimumFractionDigits: 2 })}`;
+    document.getElementById('summary-shipping').textContent = shipping === 0 ? 'ฟรี (฿0.00)' : `฿${shipping.toFixed(2)}`;
+    document.getElementById('summary-total').textContent = `฿${total.toLocaleString('th-TH', { minimumFractionDigits: 2 })}`;
+  }
+
+  function applyCoupon() {
+    const input = document.getElementById('coupon-input');
+    const code = input.value.trim().toUpperCase();
+    const feedback = document.getElementById('coupon-feedback');
+
+    if (code === 'CLEAN10') {
+      appliedCoupon = 'CLEAN10';
+      couponDiscountRate = 0.10;
+      couponFixedDiscount = 0;
+      feedback.style.color = '#1E4620';
+      feedback.textContent = '✓ ใช้โค้ดสำเร็จ! ลด 10% ทั้งตะกร้า';
+    } else if (code === 'OLIVE50') {
+      appliedCoupon = 'OLIVE50';
+      couponDiscountRate = 0;
+      couponFixedDiscount = 50.0;
+      feedback.style.color = '#1E4620';
+      feedback.textContent = '✓ ใช้โค้ดสำเร็จ! ลด 50 บาท';
+    } else if (code === 'ROUTINE15') {
+      appliedCoupon = 'ROUTINE15';
+      couponDiscountRate = 0.15;
+      couponFixedDiscount = 0;
+      feedback.style.color = '#1E4620';
+      feedback.textContent = '✓ ใช้โค้ดสำเร็จ! ลด 15% สำหรับเซตรูทีน';
+    } else {
+      appliedCoupon = '';
+      couponDiscountRate = 0;
+      couponFixedDiscount = 0;
+      feedback.style.color = '#9B1C1C';
+      feedback.textContent = '✕ โค้ดส่วนลดไม่ถูกต้อง หรือหมดอายุ';
+    }
+
+    calculateTotals();
+  }
+
+  function updatePaymentSelect(val) {
+    ['promptpay', 'credit', 'cod'].forEach(method => {
+      const el = document.getElementById(`pay-opt-${method}`);
+      if (el) {
+        if (val === 'promptpay' && method === 'promptpay' ||
+            val === 'credit_card' && method === 'credit' ||
+            val === 'cod' && method === 'cod') {
+          el.style.borderColor = 'var(--olive-main)';
+          el.style.background = 'var(--olive-tint)';
+        } else {
+          el.style.borderColor = 'var(--border-light)';
+          el.style.background = '#FFF';
+        }
+      }
+    });
+  }
+
+  function clearCartConfirm() {
+    if (confirm('คุณแน่ใจหรือไม่ว่าต้องการล้างสินค้าทั้งหมดในตะกร้า?')) {
+      clearCart();
+    }
+  }
+
+  async function submitOrder() {
+    const name = document.getElementById('cust-name').value.trim();
+    const phone = document.getElementById('cust-phone').value.trim();
+    const email = document.getElementById('cust-email').value.trim();
+    const address = document.getElementById('cust-address').value.trim();
+    const payment = document.querySelector('input[name="payment_method"]:checked')?.value || 'promptpay';
+    const cart = getCart();
+
+    if (!name || !phone || !email || !address) {
+      alert('กรุณากรอกข้อมูลผู้รับและที่อยู่จัดส่งให้ครบถ้วนค่ะ');
+      return;
+    }
+
+    if (cart.length === 0) {
+      alert('ไม่มีสินค้าในตะกร้า');
+      return;
+    }
+
+    const payload = {
+      customer_name: name,
+      customer_phone: phone,
+      customer_email: email,
+      customer_address: address,
+      payment_method: payment,
+      coupon_code: appliedCoupon,
+      items: cart
+    };
+
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+
+      if (data.status === 'success') {
+        clearCart();
+        window.location.href = data.redirect_url;
+      } else {
+        alert(data.message || 'เกิดข้อผิดพลาดในการสั่งซื้อ');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์เพื่อสั่งซื้อได้');
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    renderCartPage();
+  });
+</script>
+{% endblock %}

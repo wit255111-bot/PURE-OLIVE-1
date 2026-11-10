@@ -1,0 +1,319 @@
+{% extends 'base.html' %}
+
+{% block title %}แผงควบคุมแอดมิน — PURE & OLIVE Backoffice{% endblock %}
+
+{% block content %}
+
+<!-- Header Banner -->
+<section style="background: var(--bg-subtle); padding: 36px 0; border-bottom: 1px solid var(--border-olive);">
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+      <div>
+        <span class="section-tag" style="color: var(--olive-main);">Management System</span>
+        <h1 style="font-size: 2rem; color: var(--olive-dark); margin-bottom: 4px;">
+          ระบบจัดการหลังบ้าน (Admin Dashboard)
+        </h1>
+        <p style="color: var(--text-secondary); font-size: 0.92rem;">
+          ดูแลรายการคำสั่งซื้อ ตรวจสอบคลังสินค้า และเพิ่มสินค้าใหม่
+        </p>
+      </div>
+      <div>
+        <button type="button" class="btn btn-primary" onclick="document.getElementById('add-product-modal').style.display='flex'">
+          + เพิ่มสินค้าใหม่เข้าร้าน
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section style="padding: 40px 0 90px;">
+  <div class="container">
+    
+    <!-- KPI Summary Stats -->
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 40px;">
+      
+      <div style="background: #FFF; border-radius: var(--radius-md); padding: 22px; border: 1px solid var(--border-light); box-shadow: var(--shadow-sm);">
+        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">ยอดขายรวมทั้งหมด</div>
+        <div style="font-size: 1.8rem; font-weight: 700; color: var(--olive-dark); margin: 6px 0; font-family: 'Plus Jakarta Sans', sans-serif;">
+          ฿{{ "{:,.2f}".format(total_sales) }}
+        </div>
+        <div style="font-size: 0.78rem; color: #2E7D32;">✓ อัปเดตแบบเรียลไทม์</div>
+      </div>
+
+      <div style="background: #FFF; border-radius: var(--radius-md); padding: 22px; border: 1px solid var(--border-light); box-shadow: var(--shadow-sm);">
+        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">คำสั่งซื้อทั้งหมด</div>
+        <div style="font-size: 1.8rem; font-weight: 700; color: var(--olive-dark); margin: 6px 0; font-family: 'Plus Jakarta Sans', sans-serif;">
+          {{ total_orders }} ออเดอร์
+        </div>
+        <div style="font-size: 0.78rem; color: var(--text-muted);">จากระบบสั่งซื้อออนไลน์</div>
+      </div>
+
+      <div style="background: #FFF; border-radius: var(--radius-md); padding: 22px; border: 1px solid var(--border-light); box-shadow: var(--shadow-sm);">
+        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">รายการสินค้าในร้าน</div>
+        <div style="font-size: 1.8rem; font-weight: 700; color: var(--olive-dark); margin: 6px 0; font-family: 'Plus Jakarta Sans', sans-serif;">
+          {{ total_products }} รายการ
+        </div>
+        <div style="font-size: 0.78rem; color: var(--text-muted);">สกินแคร์ / เมคอัพ / ทูลส์</div>
+      </div>
+
+      <div style="background: #FFF; border-radius: var(--radius-md); padding: 22px; border: 1px solid var(--border-light); box-shadow: var(--shadow-sm);">
+        <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">สินค้าสต็อกน้อย (≤15)</div>
+        <div style="font-size: 1.8rem; font-weight: 700; color: {% if low_stock_count > 0 %}#D32F2F{% else %}var(--olive-dark){% endif %}; margin: 6px 0; font-family: 'Plus Jakarta Sans', sans-serif;">
+          {{ low_stock_count }} รายการ
+        </div>
+        <div style="font-size: 0.78rem; color: {% if low_stock_count > 0 %}#D32F2F{% else %}var(--text-muted){% endif %};">
+          {% if low_stock_count > 0 %}⚠️ ควรเติมสต็อกเพิ่ม{% else %}สต็อกเพียงพอ{% endif %}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Section: Recent Orders -->
+    <div style="background: #FFF; border-radius: var(--radius-lg); border: 1px solid var(--border-light); padding: 28px; margin-bottom: 40px; box-shadow: var(--shadow-sm);">
+      <h3 style="font-size: 1.35rem; color: var(--olive-dark); margin-bottom: 18px; display: flex; align-items: center; gap: 8px;">
+        <span>📦</span> <span>รายการคำสั่งซื้อล่าสุด (Recent Orders)</span>
+      </h3>
+
+      {% if orders %}
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
+            <thead>
+              <tr style="background: var(--bg-warm); color: var(--olive-dark); border-bottom: 2px solid var(--border-light);">
+                <th style="padding: 12px 14px;">เลขที่ออเดอร์</th>
+                <th style="padding: 12px 14px;">ผู้สั่งซื้อ</th>
+                <th style="padding: 12px 14px;">เบอร์โทร</th>
+                <th style="padding: 12px 14px;">ยอดเงิน</th>
+                <th style="padding: 12px 14px;">วิธีชำระ</th>
+                <th style="padding: 12px 14px;">สถานะ</th>
+                <th style="padding: 12px 14px;">วันที่</th>
+                <th style="padding: 12px 14px; text-align: center;">จัดการ</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for o in orders %}
+                <tr style="border-bottom: 1px solid var(--border-light);">
+                  <td style="padding: 12px 14px; font-weight: 700; color: var(--olive-dark); font-family: 'Plus Jakarta Sans', sans-serif;">
+                    <a href="{{ url_for('order_success', order_number=o.order_number) }}" style="text-decoration: underline; color: var(--olive-main);">
+                      {{ o.order_number }}
+                    </a>
+                  </td>
+                  <td style="padding: 12px 14px;">{{ o.customer_name }}</td>
+                  <td style="padding: 12px 14px; color: var(--text-muted);">{{ o.customer_phone }}</td>
+                  <td style="padding: 12px 14px; font-weight: 700; color: var(--olive-dark);">
+                    ฿{{ "{:,.2f}".format(o.total_price) }}
+                  </td>
+                  <td style="padding: 12px 14px;">
+                    <span style="font-size: 0.75rem; background: var(--bg-body); padding: 2px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+                      {{ o.payment_method|upper }}
+                    </span>
+                  </td>
+                  <td style="padding: 12px 14px;">
+                    {% if o.status == 'completed' %}
+                      <span style="background: #E8F5E9; color: #2E7D32; font-size: 0.78rem; font-weight: 600; padding: 4px 10px; border-radius: var(--radius-pill);">จัดส่งแล้ว</span>
+                    {% elif o.status == 'shipping' %}
+                      <span style="background: #E3F2FD; color: #1565C0; font-size: 0.78rem; font-weight: 600; padding: 4px 10px; border-radius: var(--radius-pill);">กำลังจัดส่ง</span>
+                    {% else %}
+                      <span style="background: #FFF9C4; color: #F57F17; font-size: 0.78rem; font-weight: 600; padding: 4px 10px; border-radius: var(--radius-pill);">ชำระแล้ว (รอจัดส่ง)</span>
+                    {% endif %}
+                  </td>
+                  <td style="padding: 12px 14px; color: var(--text-muted); font-size: 0.8rem;">
+                    {{ o.created_at[:16] }}
+                  </td>
+                  <td style="padding: 12px 14px; text-align: center;">
+                    <form action="{{ url_for('admin_update_order_status', order_id=o.id) }}" method="POST" style="display: inline-flex; gap: 6px;">
+                      <select name="status" style="font-size: 0.8rem; padding: 4px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border-light);">
+                        <option value="paid" {% if o.status == 'paid' %}selected{% endif %}>ชำระแล้ว</option>
+                        <option value="shipping" {% if o.status == 'shipping' %}selected{% endif %}>กำลังจัดส่ง</option>
+                        <option value="completed" {% if o.status == 'completed' %}selected{% endif %}>เสร็จสมบูรณ์</option>
+                      </select>
+                      <button type="submit" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.78rem;">
+                        บันทึก
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p style="color: var(--text-muted); font-size: 0.9rem; text-align: center; padding: 30px;">ยังไม่มีรายการสั่งซื้อเข้ามา</p>
+      {% endif %}
+    </div>
+
+    <!-- Section: Products Inventory -->
+    <div style="background: #FFF; border-radius: var(--radius-lg); border: 1px solid var(--border-light); padding: 28px; box-shadow: var(--shadow-sm);">
+      <h3 style="font-size: 1.35rem; color: var(--olive-dark); margin-bottom: 18px; display: flex; align-items: center; gap: 8px;">
+        <span>🧴</span> <span>รายการสินค้าในคลัง (Product Inventory)</span>
+      </h3>
+
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem;">
+          <thead>
+            <tr style="background: var(--bg-warm); color: var(--olive-dark); border-bottom: 2px solid var(--border-light);">
+              <th style="padding: 12px 14px;">รูปภาพ</th>
+              <th style="padding: 12px 14px;">ชื่อสินค้า</th>
+              <th style="padding: 12px 14px;">หมวดหมู่</th>
+              <th style="padding: 12px 14px;">ราคาขาย</th>
+              <th style="padding: 12px 14px;">คงเหลือ</th>
+              <th style="padding: 12px 14px;">สถานะสต็อก</th>
+              <th style="padding: 12px 14px; text-align: center;">จัดการ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in products %}
+              <tr style="border-bottom: 1px solid var(--border-light);">
+                <td style="padding: 12px 14px;">
+                  <img src="{{ p.image_url }}" alt="{{ p.name }}" style="width: 45px; height: 45px; object-fit: cover; border-radius: 6px;">
+                </td>
+                <td style="padding: 12px 14px;">
+                  <div style="font-weight: 600; color: var(--olive-dark);">{{ p.name }}</div>
+                  <div style="font-size: 0.78rem; color: var(--text-muted);">{{ p.name_en }}</div>
+                </td>
+                <td style="padding: 12px 14px;">
+                  <span style="background: var(--olive-tint); color: var(--olive-dark); font-size: 0.78rem; padding: 2px 8px; border-radius: var(--radius-pill);">
+                    {{ p.category }}
+                  </span>
+                </td>
+                <td style="padding: 12px 14px; font-weight: 700; color: var(--olive-dark);">
+                  ฿{{ "{:,.2f}".format(p.price) }}
+                </td>
+                <td style="padding: 12px 14px; font-weight: 600;">
+                  {{ p.stock }} ชิ้น
+                </td>
+                <td style="padding: 12px 14px;">
+                  {% if p.stock <= 15 %}
+                    <span style="color: #D32F2F; font-size: 0.78rem; font-weight: 600;">⚠️ สต็อกต่ำ</span>
+                  {% else %}
+                    <span style="color: #2E7D32; font-size: 0.78rem;">ปกติ</span>
+                  {% endif %}
+                </td>
+                <td style="padding: 12px 14px; text-align: center;">
+                  <div style="display: flex; gap: 8px; justify-content: center;">
+                    <a href="{{ url_for('product_detail', product_id=p.id) }}" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.78rem;" target="_blank">
+                      ดูหน้าเว็บ
+                    </a>
+                    <form action="{{ url_for('admin_delete_product', product_id=p.id) }}" method="POST" onsubmit="return confirm('คุณต้องการลบสินค้านี้ใช่หรือไม่?');" style="display: inline;">
+                      <button type="submit" style="background: #FEE2E2; color: #DC2626; border: 1px solid #FCA5A5; padding: 4px 10px; border-radius: var(--radius-sm); font-size: 0.78rem; cursor:pointer;">
+                        ลบ
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Add Product Modal Form -->
+<div id="add-product-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; padding: 20px;">
+  <div style="background: #FFF; width: 680px; max-width: 95vw; max-height: 90vh; overflow-y: auto; border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-lg);">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border-light);">
+      <h3 style="font-size: 1.35rem; color: var(--olive-dark);">+ เพิ่มสินค้าใหม่เข้าร้าน PURE & OLIVE</h3>
+      <button type="button" onclick="document.getElementById('add-product-modal').style.display='none'" style="background:none; border:none; font-size: 1.5rem; cursor:pointer;">&times;</button>
+    </div>
+
+    <form action="{{ url_for('admin_add_product') }}" method="POST">
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px;">ชื่อสินค้า (ภาษาไทย) *</label>
+          <input type="text" name="name" required placeholder="เช่น เซรั่มบำรุงผิวหน้าจากสควาเลน" 
+                 style="width: 100%; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); font-family: inherit; font-size: 0.88rem;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px;">ชื่อสินค้า (ภาษาอังกฤษ) *</label>
+          <input type="text" name="name_en" required placeholder="เช่น Pure Squalane Hydrating Serum" 
+                 style="width: 100%; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); font-family: inherit; font-size: 0.88rem;">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 14px;">
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px;">หมวดหมู่หลัก *</label>
+          <select name="category" style="width: 100%; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); font-family: inherit; font-size: 0.88rem;">
+            <option value="skincare">สกินแคร์ & ครีม</option>
+            <option value="cosmetics">เครื่องสำอาง</option>
+            <option value="tools">อุปกรณ์เสริมความงาม</option>
+          </select>
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px;">หมวดหมู่ย่อย (Subcategory)</label>
+          <input type="text" name="subcategory" placeholder="serum, cream, lip, tool" 
+                 style="width: 100%; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); font-family: inherit; font-size: 0.88rem;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px;">ปริมาณ / ขนาด</label>
+          <input type="text" name="volume" placeholder="เช่น 50 ml, 1 เซต" 
+                 style="width: 100%; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); font-family: inherit; font-size: 0.88rem;">
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 14px;">
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px;">ราคาขาย (บาท) *</label>
+          <input type="number" step="0.01" name="price" required placeholder="590" 
+                 style="width: 100%; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); font-family: inherit; font-size: 0.88rem;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px;">ราคาเดิม (ก่อนลด)</label>
+          <input type="number" step="0.01" name="original_price" placeholder="720" 
+                 style="width: 100%; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); font-family: inherit; font-size: 0.88rem;">
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px;">จำนวนสต็อก *</label>
+          <input type="number" name="stock" value="25" required 
+                 style="width: 100%; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); font-family: inherit; font-size: 0.88rem;">
+        </div>
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px;">รูปภาพสินค้า (URL) *</label>
+        <input type="url" name="image_url" placeholder="https://images.unsplash.com/..." 
+               value="https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80"
+               style="width: 100%; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); font-family: inherit; font-size: 0.88rem;">
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px;">ส่วนผสมสำคัญ (Key Ingredients)</label>
+        <input type="text" name="key_ingredients" placeholder="Olive Squalane, Ceramide NP, Centella" 
+               style="width: 100%; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); font-family: inherit; font-size: 0.88rem;">
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px;">คำอธิบายสินค้า</label>
+        <textarea name="description" rows="3" placeholder="ระบุสรรพคุณและจุดเด่นของผลิตภัณฑ์..." 
+                  style="width: 100%; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); font-family: inherit; font-size: 0.88rem;"></textarea>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px;">วิธีใช้ (How to use)</label>
+        <textarea name="how_to_use" rows="2" placeholder="ระบุวิธีใช้..." 
+                  style="width: 100%; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); font-family: inherit; font-size: 0.88rem;"></textarea>
+      </div>
+
+      <div style="display: flex; gap: 20px; margin-bottom: 24px;">
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 0.88rem; cursor: pointer;">
+          <input type="checkbox" name="is_bestseller" value="1"> สินค้าขายดี (Best Seller)
+        </label>
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 0.88rem; cursor: pointer;">
+          <input type="checkbox" name="is_featured" value="1" checked> แสดงในหน้าแรก (Featured)
+        </label>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 12px;">
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('add-product-modal').style.display='none'">ยกเลิก</button>
+        <button type="submit" class="btn btn-primary">+ บันทึกสินค้า</button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+{% endblock %}

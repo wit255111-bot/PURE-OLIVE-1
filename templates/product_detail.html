@@ -1,0 +1,267 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.name }} — PURE & OLIVE{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumbs -->
+<div style="background: var(--bg-card); border-bottom: 1px solid var(--border-light); padding: 14px 0;">
+  <div class="container">
+    <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+      <a href="{{ url_for('index') }}">หน้าแรก</a> &gt;
+      <a href="{{ url_for('products') }}">สินค้า</a> &gt;
+      <a href="{{ url_for('products', category=product.category) }}">{{ product.category|capitalize }}</a> &gt;
+      <span style="color: var(--olive-dark); font-weight: 500;">{{ product.name }}</span>
+    </div>
+  </div>
+</div>
+
+<section style="padding: 50px 0 80px;">
+  <div class="container">
+    <div style="display: grid; grid-template-columns: 1fr 1.1fr; gap: 50px; margin-bottom: 70px;">
+      
+      <!-- Product Image Gallery -->
+      <div>
+        <div style="position: relative; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border-light); background: #FFF; box-shadow: var(--shadow-sm);">
+          <img src="{{ product.image_url }}" alt="{{ product.name }}" style="width: 100%; height: 500px; object-fit: cover;">
+          <div class="product-badge-group">
+            {% if product.is_bestseller %}
+              <span class="badge-bestseller">Best Seller</span>
+            {% endif %}
+            <span class="badge-clean">100% Clean Formula</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Details & Purchase Form -->
+      <div>
+        <div style="font-size: 0.85rem; color: var(--olive-main); text-transform: uppercase; letter-spacing: 0.12em; font-weight: 600; margin-bottom: 6px;">
+          {{ product.brand }} • {{ product.subcategory|upper }}
+        </div>
+        <h1 style="font-size: 2.1rem; line-height: 1.25; margin-bottom: 6px; color: var(--olive-dark);">
+          {{ product.name }}
+        </h1>
+        <div style="font-size: 1rem; color: var(--text-secondary); margin-bottom: 16px;">
+          {{ product.name_en }}
+        </div>
+
+        <!-- Rating & Stock Meta -->
+        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px solid var(--border-light);">
+          <div class="rating-stars" style="font-size: 1rem;">
+            ★ <span>{{ product.rating }}</span>
+            <span class="rating-text">({{ product.reviews_count }} รีวิวจากลูกค้า)</span>
+          </div>
+          <span style="color: var(--border-light);">|</span>
+          <span style="font-size: 0.88rem; color: var(--olive-main); background: var(--olive-tint); padding: 4px 12px; border-radius: var(--radius-pill); font-weight: 500;">
+            ✓ สต็อกพร้อมส่ง {{ product.stock }} ชิ้น
+          </span>
+          <span style="font-size: 0.88rem; color: var(--text-muted);">
+            ปริมาณ: {{ product.volume }}
+          </span>
+        </div>
+
+        <!-- Price -->
+        <div style="margin-bottom: 24px;">
+          <span style="font-size: 2rem; font-weight: 700; color: var(--olive-dark); font-family: 'Plus Jakarta Sans', sans-serif;">
+            ฿{{ "{:,.2f}".format(product.price) }}
+          </span>
+          {% if product.original_price and product.original_price > product.price %}
+            <span style="font-size: 1.1rem; color: var(--text-muted); text-decoration: line-through; margin-left: 10px;">
+              ฿{{ "{:,.2f}".format(product.original_price) }}
+            </span>
+            <span style="background: #FFE8E8; color: #D32F2F; font-size: 0.8rem; font-weight: 600; padding: 2px 8px; border-radius: 4px; margin-left: 8px;">
+              ลด {{ ((product.original_price - product.price) / product.original_price * 100)|int }}%
+            </span>
+          {% endif %}
+        </div>
+
+        <!-- Description -->
+        <p style="font-size: 0.98rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 24px;">
+          {{ product.description }}
+        </p>
+
+        <!-- Highlights & Ingredients -->
+        <div style="background: var(--bg-card); padding: 18px 22px; border-radius: var(--radius-md); border: 1px solid var(--border-light); margin-bottom: 26px;">
+          <div style="font-size: 0.9rem; font-weight: 600; color: var(--olive-dark); margin-bottom: 8px;">
+            🌿 ส่วนผสมสำคัญ (Key Ingredients):
+          </div>
+          <div style="font-size: 0.88rem; color: var(--olive-main); font-weight: 500;">
+            {{ product.key_ingredients }}
+          </div>
+          <div style="margin-top: 10px; font-size: 0.82rem; color: var(--text-muted); display: flex; gap: 14px; flex-wrap: wrap;">
+            <span>✓ เหมาะสำหรับ: {{ product.skin_types }}</span>
+            <span>✓ ดูแลปัญหา: {{ product.skin_concerns }}</span>
+          </div>
+        </div>
+
+        <!-- Quantity & Add to Cart -->
+        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 30px;">
+          <div style="display: flex; align-items: center; border: 1px solid var(--border-light); border-radius: var(--radius-pill); background: #FFF; padding: 4px 10px;">
+            <button type="button" onclick="changeQty(-1)" style="border:none; background:none; font-size: 1.2rem; cursor:pointer; padding: 4px 10px; color: var(--olive-dark);">-</button>
+            <input type="number" id="detail-qty" value="1" min="1" max="{{ product.stock }}" style="width: 45px; text-align: center; border:none; outline:none; font-size: 1rem; font-weight: 600; font-family: inherit;">
+            <button type="button" onclick="changeQty(1)" style="border:none; background:none; font-size: 1.2rem; cursor:pointer; padding: 4px 10px; color: var(--olive-dark);">+</button>
+          </div>
+
+          <button type="button" class="btn btn-primary" style="flex: 1; padding: 14px;" onclick="addCurrentProductToCart()">
+            🛒 เพิ่มลงตะกร้าสินค้า
+          </button>
+        </div>
+
+        <!-- How To Use -->
+        <div style="border-top: 1px solid var(--border-light); padding-top: 20px;">
+          <h4 style="font-size: 0.95rem; font-weight: 600; color: var(--olive-dark); margin-bottom: 6px;">
+            📖 วิธีการใช้ (How to Use):
+          </h4>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6;">
+            {{ product.how_to_use }}
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Customer Reviews Section -->
+    <div style="background: var(--bg-card); padding: 40px; border-radius: var(--radius-lg); border: 1px solid var(--border-light); margin-bottom: 60px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <h3 style="font-size: 1.6rem; color: var(--olive-dark); margin-bottom: 4px;">รีวิวจากลูกค้า (Customer Reviews)</h3>
+          <p style="font-size: 0.9rem; color: var(--text-secondary);">คะแนนเฉลี่ย {{ product.rating }} จาก 5 ดาว ({{ reviews|length }} รีวิว)</p>
+        </div>
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('review-form-box').scrollIntoView({behavior: 'smooth'})">
+          ✍️ เขียนรีวิวสินค้านี้
+        </button>
+      </div>
+
+      <!-- Reviews List -->
+      {% if reviews %}
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 40px;">
+          {% for r in reviews %}
+            <div style="background: var(--bg-body); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border-light);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <span style="width: 34px; height: 34px; border-radius: 50%; background: var(--olive-soft); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--olive-dark); font-size: 0.88rem;">
+                    {{ r.reviewer_name[:1] }}
+                  </span>
+                  <div>
+                    <div style="font-weight: 600; font-size: 0.9rem; color: var(--olive-dark);">{{ r.reviewer_name }}</div>
+                    <div style="font-size: 0.72rem; color: var(--olive-main);">สภาพผิว: {{ r.skin_type }}</div>
+                  </div>
+                </div>
+                <div style="color: var(--accent-gold); font-size: 0.85rem;">
+                  {% for _ in range(r.rating) %}★{% endfor %}
+                </div>
+              </div>
+              <p style="font-size: 0.88rem; color: var(--text-secondary); font-style: italic; margin-top: 10px;">
+                “{{ r.comment }}”
+              </p>
+              <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 10px;">
+                วันที่: {{ r.created_at[:10] }}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 30px;">ยังไม่มีรีวิวสำหรับสินค้านี้ เป็นคนแรกที่รีวิวเพื่อรับส่วนลด!</p>
+      {% endif %}
+
+      <!-- Add Review Form Box -->
+      <div id="review-form-box" style="background: var(--bg-body); padding: 26px; border-radius: var(--radius-md); border: 1px dashed var(--border-olive);">
+        <h4 style="font-size: 1.1rem; color: var(--olive-dark); margin-bottom: 14px;">แบ่งปันประสบการณ์การใช้สินค้านี้</h4>
+        <form action="{{ url_for('add_review') }}" method="POST">
+          <input type="hidden" name="product_id" value="{{ product.id }}">
+          
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px;">
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px;">ชื่อของคุณ:</label>
+              <input type="text" name="reviewer_name" required placeholder="เช่น คุณมินตรา" 
+                     style="width: 100%; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); font-family: inherit; font-size: 0.88rem;">
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px;">สภาพผิวของคุณ:</label>
+              <select name="skin_type" style="width: 100%; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); font-family: inherit; font-size: 0.88rem;">
+                <option value="ผิวผสม แพ้ง่าย">ผิวผสม แพ้ง่าย</option>
+                <option value="ผิวมัน เป็นสิวง่าย">ผิวมัน เป็นสิวง่าย</option>
+                <option value="ผิวแห้ง ขาดน้ำ">ผิวแห้ง ขาดน้ำ</option>
+                <option value="ผิวธรรมดา">ผิวธรรมดา</option>
+                <option value="ผิวมีริ้วรอย">ผิวมีริ้วรอย / ต้องการยกกระชับ</option>
+              </select>
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px;">ให้คะแนน:</label>
+              <select name="rating" style="width: 100%; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); font-family: inherit; font-size: 0.88rem;">
+                <option value="5">★★★★★ (5 ดาว - ประทับใจมาก)</option>
+                <option value="4">★★★★☆ (4 ดาว - ดีมาก)</option>
+                <option value="3">★★★☆☆ (3 ดาว - ปานกลาง)</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px;">ความคิดเห็นและผลลัพธ์:</label>
+            <textarea name="comment" rows="3" required placeholder="เล่าผลลัพธ์ความรู้สึกหลังใช้ เช่น เนื้อสัมผัส ความชุ่มชื้น การระคายเคือง..." 
+                      style="width: 100%; padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-light); font-family: inherit; font-size: 0.88rem;"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="padding: 10px 24px; font-size: 0.88rem;">
+            ส่งรีวิว ➔
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- Related Products -->
+    {% if related %}
+      <div>
+        <h3 style="font-size: 1.6rem; color: var(--olive-dark); margin-bottom: 24px;">สินค้าในหมวดหมู่เดียวกัน</h3>
+        <div class="product-grid">
+          {% for p in related %}
+            <div class="product-card">
+              <div class="product-img-wrap">
+                <a href="{{ url_for('product_detail', product_id=p.id) }}">
+                  <img src="{{ p.image_url }}" alt="{{ p.name }}">
+                </a>
+              </div>
+              <div class="product-body">
+                <div class="product-category-sub">{{ p.subcategory }}</div>
+                <a href="{{ url_for('product_detail', product_id=p.id) }}">
+                  <h4 class="product-name" style="font-size: 0.95rem;">{{ p.name }}</h4>
+                </a>
+                <div class="product-price-row">
+                  <span class="price-current">฿{{ "{:,.2f}".format(p.price) }}</span>
+                  <a href="{{ url_for('product_detail', product_id=p.id) }}" class="btn-quick-add">➔</a>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function changeQty(delta) {
+    const qtyInput = document.getElementById('detail-qty');
+    let val = parseInt(qtyInput.value) || 1;
+    val = Math.max(1, Math.min({{ product.stock }}, val + delta));
+    qtyInput.value = val;
+  }
+
+  function addCurrentProductToCart() {
+    const qty = parseInt(document.getElementById('detail-qty').value) || 1;
+    addToCart({
+      id: {{ product.id }},
+      name: '{{ product.name|replace("'", "\\'") }}',
+      price: {{ product.price }},
+      image_url: '{{ product.image_url }}',
+      volume: '{{ product.volume }}',
+      quantity: qty
+    });
+  }
+</script>
+{% endblock %}

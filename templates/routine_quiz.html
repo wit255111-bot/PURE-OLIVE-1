@@ -1,0 +1,420 @@
+{% extends 'base.html' %}
+
+{% block title %}แบบทดสอบวิเคราะห์สภาพผิว & จัดสกินแคร์รูทีน — PURE & OLIVE{% endblock %}
+
+{% block extra_css %}
+<style>
+  .quiz-wizard-card {
+    background: #FFF;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-md);
+    padding: 44px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  .step-indicator-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    margin-bottom: 40px;
+    position: relative;
+  }
+  .step-indicator-bar::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 20%;
+    right: 20%;
+    height: 2px;
+    background: var(--border-light);
+    z-index: 1;
+    transform: translateY(-50%);
+  }
+  .quiz-step-dot {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #FFF;
+    border: 2px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    position: relative;
+    z-index: 2;
+    transition: var(--transition);
+  }
+  .quiz-step-dot.active {
+    border-color: var(--olive-main);
+    background: var(--olive-main);
+    color: #FFF;
+    box-shadow: 0 0 0 5px var(--olive-soft);
+  }
+  .quiz-step-dot.completed {
+    border-color: var(--olive-main);
+    background: var(--olive-tint);
+    color: var(--olive-main);
+  }
+
+  .choice-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    margin-top: 24px;
+  }
+  .choice-card {
+    background: var(--bg-body);
+    border: 2px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 24px 20px;
+    cursor: pointer;
+    text-align: left;
+    transition: var(--transition);
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .choice-card:hover {
+    border-color: var(--olive-light);
+    transform: translateY(-3px);
+    background: #FFF;
+  }
+  .choice-card.selected {
+    border-color: var(--olive-main);
+    background: var(--olive-tint);
+    box-shadow: var(--shadow-sm);
+  }
+  .choice-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+  }
+  .choice-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--olive-dark);
+    margin-bottom: 4px;
+  }
+  .choice-desc {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+  }
+
+  /* Routine Result Styles */
+  .routine-result-box {
+    display: none;
+    animation: fadeIn 0.4s ease;
+  }
+  .routine-column-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    background: var(--olive-tint);
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    color: var(--olive-dark);
+    margin-bottom: 16px;
+  }
+  .routine-item-card {
+    background: #FFF;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+  .routine-step-num {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--olive-main);
+    background: var(--olive-tint);
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    min-width: 55px;
+    text-align: center;
+  }
+  .routine-item-img {
+    width: 50px;
+    height: 50px;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+  }
+  .routine-item-info h5 {
+    font-size: 0.9rem;
+    color: var(--olive-dark);
+    margin-bottom: 2px;
+    line-height: 1.25;
+  }
+  .routine-badge {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  .routine-price {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--olive-main);
+  }
+
+  .bundle-card {
+    background: linear-gradient(135deg, #FAF8F5 0%, #EBF0E9 100%);
+    border: 2px solid var(--border-olive);
+    border-radius: var(--radius-lg);
+    padding: 30px;
+    margin-top: 36px;
+    text-align: center;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Header Banner -->
+<section style="background: var(--bg-subtle); padding: 50px 0 40px; text-align: center; border-bottom: 1px solid var(--border-olive);">
+  <div class="container">
+    <span class="section-tag">Skin Diagnostic & Routine Matcher</span>
+    <h1 style="font-size: 2.6rem; color: var(--olive-dark); margin-bottom: 10px;">
+      แบบทดสอบวิเคราะห์สภาพผิวอัจฉริยะ
+    </h1>
+    <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto; font-size: 1.05rem;">
+      ตอบคำถามเพียง 3 ข้อ เพื่อให้ระบบค้นหาและจัดสกินแคร์รูทีนที่เข้ากับผิวคุณที่สุด พร้อมรับส่วนลดเซต 15%
+    </p>
+  </div>
+</section>
+
+<!-- Quiz Wizard Section -->
+<section style="padding: 60px 0 100px;">
+  <div class="container" id="quiz-card-container">
+    
+    <div class="quiz-wizard-card">
+      
+      <!-- Step Indicator Dots -->
+      <div class="step-indicator-bar">
+        <div class="quiz-step-dot active" id="dot-1">1</div>
+        <div class="quiz-step-dot" id="dot-2">2</div>
+        <div class="quiz-step-dot" id="dot-3">3</div>
+      </div>
+
+      <!-- STEP 1: SKIN TYPE -->
+      <div class="quiz-step-pane" id="step-1">
+        <div style="text-align: center; margin-bottom: 10px;">
+          <span style="font-size: 0.85rem; color: var(--olive-main); font-weight: 600;">ขั้นตอนที่ 1 จาก 3</span>
+          <h2 style="font-size: 1.7rem; color: var(--olive-dark);">สภาพผิวปัจจุบันของคุณเป็นแบบไหน?</h2>
+          <p style="font-size: 0.92rem; color: var(--text-secondary);">สังเกตความรู้สึกของผิวหลังล้างหน้าประมาณ 30 นาที</p>
+        </div>
+
+        <div class="choice-grid">
+          <div class="choice-card skin-type-option" data-value="combination" onclick="selectSkinType('combination')">
+            <div class="choice-icon">⚖️</div>
+            <div>
+              <div class="choice-title">ผิวผสม (Combination Skin)</div>
+              <div class="choice-desc">มันเฉพาะบริเวณ T-Zone (หน้าผาก จมูก คาง) แต่บริเวณแก้มปกติหรือแห้ง</div>
+            </div>
+          </div>
+
+          <div class="choice-card skin-type-option" data-value="oily" onclick="selectSkinType('oily')">
+            <div class="choice-icon">💧</div>
+            <div>
+              <div class="choice-title">ผิวมัน (Oily Skin)</div>
+              <div class="choice-desc">มีความมันเงาทั่วใบหน้าระหว่างวัน รูขุมขนกว้าง เกิดสิวง่าย</div>
+            </div>
+          </div>
+
+          <div class="choice-card skin-type-option" data-value="dry" onclick="selectSkinType('dry')">
+            <div class="choice-icon">🌾</div>
+            <div>
+              <div class="choice-title">ผิวแห้ง (Dry Skin)</div>
+              <div class="choice-desc">รู้สึกตึงผิว ผิวสาก ลอกเป็นขุยง่าย ต้องการความชุ่มชื้นสูง</div>
+            </div>
+          </div>
+
+          <div class="choice-card skin-type-option" data-value="sensitive" onclick="selectSkinType('sensitive')">
+            <div class="choice-icon">🌸</div>
+            <div>
+              <div class="choice-title">ผิวบอบบาง แพ้ง่าย (Sensitive)</div>
+              <div class="choice-desc">ระคายเคือง แสบ แดงง่ายเมื่อโดนแดดหรือสารเคมี เกราะผิวอ่อนแอ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: SKIN CONCERN -->
+      <div class="quiz-step-pane" id="step-2" style="display: none;">
+        <div style="text-align: center; margin-bottom: 10px;">
+          <span style="font-size: 0.85rem; color: var(--olive-main); font-weight: 600;">ขั้นตอนที่ 2 จาก 3</span>
+          <h2 style="font-size: 1.7rem; color: var(--olive-dark);">ปัญหาผิวหลักที่คุณอยากฟื้นฟูเร่งด่วน?</h2>
+          <p style="font-size: 0.92rem; color: var(--text-secondary);">เลือกเป้าหมายการบำรุงที่ต้องการเน้นเป็นพิเศษ</p>
+        </div>
+
+        <div class="choice-grid">
+          <div class="choice-card concern-option" data-value="acne" onclick="selectConcern('acne')">
+            <div class="choice-icon">🌿</div>
+            <div>
+              <div class="choice-title">สิวอุดตัน สิวอักเสบ & รอยสิว</div>
+              <div class="choice-desc">ต้องการลดการเกิดสิวใหม่ ลดรอยดำรอยแดง และคุมความมัน</div>
+            </div>
+          </div>
+
+          <div class="choice-card concern-option" data-value="barrier" onclick="selectConcern('barrier')">
+            <div class="choice-icon">🛡️</div>
+            <div>
+              <div class="choice-title">ฟื้นฟูเกราะป้องกันผิว (Skin Barrier)</div>
+              <div class="choice-desc">ผิวระคายเคืองง่าย แสบข้างจมูก ผิวขาดสมดุล ต้องการให้ผิวแข็งแรง</div>
+            </div>
+          </div>
+
+          <div class="choice-card concern-option" data-value="hydration" onclick="selectConcern('hydration')">
+            <div class="choice-icon">🌊</div>
+            <div>
+              <div class="choice-title">ผิวขาดน้ำ ขาดความชุ่มชื้น</div>
+              <div class="choice-desc">แต่งหน้าไม่ติด ผิวดูเหนื่อยล้า ต้องการผิวอิ่มฟู ฉ่ำวาวสุขภาพดี</div>
+            </div>
+          </div>
+
+          <div class="choice-card concern-option" data-value="aging" onclick="selectConcern('aging')">
+            <div class="choice-icon">✨</div>
+            <div>
+              <div class="choice-title">ริ้วรอย & ผิวหย่อนคล้อย</div>
+              <div class="choice-desc">ต้องการยกกระชับกรอบหน้า ลดเลือนเส้นริ้ว และกระตุ้นคอลลาเจน</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 24px;">
+          <button type="button" class="btn btn-secondary" onclick="setQuizStep(1)">
+            ⬅ ย้อนกลับไปขั้นตอนก่อนหน้า
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 3: RITUAL STYLE -->
+      <div class="quiz-step-pane" id="step-3" style="display: none;">
+        <div style="text-align: center; margin-bottom: 10px;">
+          <span style="font-size: 0.85rem; color: var(--olive-main); font-weight: 600;">ขั้นตอนสุดท้าย (3 จาก 3)</span>
+          <h2 style="font-size: 1.7rem; color: var(--olive-dark);">สไตล์การปรนนิบัติผิวที่คุณชื่นชอบ?</h2>
+          <p style="font-size: 0.92rem; color: var(--text-secondary);">เลือกรูปแบบที่ตรงกับไลฟ์สไตล์ประจำวันของคุณ</p>
+        </div>
+
+        <div class="choice-grid">
+          <div class="choice-card style-option" data-value="complete" onclick="selectStyle('complete')">
+            <div class="choice-icon">🪄</div>
+            <div>
+              <div class="choice-title">Complete Ritual + บิวตี้ทูลส์</div>
+              <div class="choice-desc">สกินแคร์ครบเซต ผสานอุปกรณ์นวดหน้า/กัวซาหินหยกแท้ เพื่อผลลัพธ์ระดับโฮมสปา</div>
+            </div>
+          </div>
+
+          <div class="choice-card style-option" data-value="minimal" onclick="selectStyle('minimal')">
+            <div class="choice-icon">🌱</div>
+            <div>
+              <div class="choice-title">Minimalist Daily (เรียบง่าย สบายผิว)</div>
+              <div class="choice-desc">เน้นขั้นตอนจำเป็น ล้าง โทนเนอร์ เซรั่ม ครีม กันแดด ดูแลผิวอย่างมีประสิทธิภาพใน 5 นาที</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 24px;">
+          <button type="button" class="btn btn-secondary" onclick="setQuizStep(2)">
+            ⬅ ย้อนกลับไปขั้นตอนก่อนหน้า
+          </button>
+        </div>
+      </div>
+
+      <!-- LOADING STATE -->
+      <div id="quiz-loading" style="display: none; text-align: center; padding: 50px 20px;">
+        <div style="font-size: 2.8rem; animation: pulse 1.5s infinite;">🌿</div>
+        <h3 style="font-size: 1.3rem; color: var(--olive-dark); margin: 16px 0 6px;">กำลังประมวลผลสภาพผิวของคุณ...</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">คัดเลือกสารสกัดและจัดรูทีนที่ตรงกับปัญหาผิวของคุณอย่างแม่นยำ</p>
+      </div>
+
+      <!-- RESULTS PANE -->
+      <div class="routine-result-box" id="quiz-result-pane">
+        
+        <!-- Result Diagnosis Summary -->
+        <div style="background: var(--bg-warm); padding: 24px 28px; border-radius: var(--radius-md); border-left: 4px solid var(--olive-main); margin-bottom: 30px;">
+          <span style="font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--olive-main); font-weight: 700;">ผลการวินิจฉัยผิวเฉพาะบุคคล</span>
+          <h3 style="font-size: 1.45rem; color: var(--olive-dark); margin: 6px 0 10px;">
+            <span id="result-skin-type">-</span> • <span id="result-concern">-</span>
+          </h3>
+          <p id="result-advice" style="font-size: 0.92rem; color: var(--text-secondary); line-height: 1.6;">
+            -
+          </p>
+        </div>
+
+        <!-- Routine Split: Morning vs Night -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+          
+          <!-- Morning Routine -->
+          <div>
+            <div class="routine-column-header">
+              <span>☀️</span>
+              <span>รูทีนตอนเช้า (Morning Routine)</span>
+            </div>
+            <div id="morning-routine-list">
+              <!-- Injected by quiz.js -->
+            </div>
+          </div>
+
+          <!-- Night Routine -->
+          <div>
+            <div class="routine-column-header">
+              <span>🌙</span>
+              <span>รูทีนก่อนนอน (Night Routine)</span>
+            </div>
+            <div id="night-routine-list">
+              <!-- Injected by quiz.js -->
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Bundle Package Card -->
+        <div class="bundle-card">
+          <span class="badge-bestseller" style="font-size: 0.8rem; padding: 6px 14px;">🌟 ข้อเสนอเซตพิเศษ (Special Routine Bundle)</span>
+          <h3 style="font-size: 1.6rem; color: var(--olive-dark); margin: 12px 0 6px;">
+            เซตฟื้นฟูผิวแบบองค์รวม (<span id="bundle-count">0 ชิ้น</span>)
+          </h3>
+          <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 20px;">
+            ได้รับสินค้าทุกชิ้นในรูทีนเช้า-เย็น (ไม่นับชิ้นซ้ำ) พร้อมรับส่วนลดพิเศษทันที 15% และจัดส่งฟรี
+          </p>
+
+          <div style="display: flex; align-items: baseline; justify-content: center; gap: 14px; margin-bottom: 24px;">
+            <span style="font-size: 1rem; color: var(--text-muted); text-decoration: line-through;" id="bundle-original-price">฿0.00</span>
+            <span style="font-size: 1.85rem; font-weight: 700; color: var(--olive-dark); font-family: 'Plus Jakarta Sans', sans-serif;" id="bundle-final-price">฿0.00</span>
+            <span style="font-size: 0.88rem; color: #D32F2F; font-weight: 600;" id="bundle-discount">ประหยัด ฿0.00</span>
+          </div>
+
+          <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-primary" onclick="addFullBundleToCart()" style="padding: 14px 36px; font-size: 1rem;">
+              🛒 สั่งซื้อเซตแนะนำนี้ลงตะกร้าทันที
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="restartQuiz()" style="padding: 14px 24px;">
+              🔄 ทำแบบทดสอบใหม่อีกครั้ง
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/quiz.js') }}"></script>
+{% endblock %}
